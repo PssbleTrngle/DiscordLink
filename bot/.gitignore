@@ -5,4 +5,8 @@ build/
 tmp/
 temp/
 
+package-lock.json
+
+**/.env
+
 **.sqlite
