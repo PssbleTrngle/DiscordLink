@@ -1,0 +1,40 @@
+{
+   "name": "server",
+   "version": "0.0.1",
+   "description": "Diary server backend",
+   "devDependencies": {
+      "@types/node": "^8.0.29",
+      "ts-node": "3.3.0",
+      "typescript": "^3.9.3"
+   },
+   "dependencies": {
+      "@types/axios": "^0.14.0",
+      "@types/bcrypt": "^3.0.0",
+      "@types/body-parser": "^1.19.0",
+      "@types/chalk": "^2.2.0",
+      "@types/express": "^4.17.6",
+      "@types/faker": "^4.1.12",
+      "@types/jsonwebtoken": "^8.5.0",
+      "axios": "^0.19.2",
+      "bcrypt": "^4.0.1",
+      "body-parser": "^1.18.1",
+      "chalk": "^4.0.0",
+      "discord.js": "^12.2.0",
+      "express": "^4.15.4",
+      "i": "^0.3.6",
+      "jsonwebtoken": "^8.5.1",
+      "reflect-metadata": "^0.1.10",
+      "sqlite3": "^4.0.3",
+      "tsc": "^1.20150623.0",
+      "typeorm": "^0.2.25",
+      "typeorm-seeding": "^1.6.1"
+   },
+   "scripts": {
+      "run": "node build/src/index.js",
+      "start": "ts-node src/index.ts",
+      "build": "tsc",
+      "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
+      "seed:config": "ts-node ./node_modules/typeorm-seeding/dist/cli.js config",
+      "seed:run": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed"
+   }
+}

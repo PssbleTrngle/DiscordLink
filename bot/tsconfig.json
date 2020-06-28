@@ -1,0 +1,18 @@
+{
+   "compilerOptions": {
+      "lib": [
+         "es5",
+         "es6"
+      ],
+      "strict": true,
+      "target": "es2018",
+      "module": "commonJS",
+      "moduleResolution": "node",
+      "allowJs": true,
+      "esModuleInterop": true,
+      "outDir": "./build",
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "sourceMap": true
+   }
+}
