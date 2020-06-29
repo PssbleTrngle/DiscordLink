@@ -3,7 +3,7 @@ FROM node:latest
 WORKDIR /var/www/
 
 # Install dependencies
-COPY ./package.json .
+COPY ./package.json ./
 RUN npm install --no-audit --no-package-lock
 
 # Build javascript code
