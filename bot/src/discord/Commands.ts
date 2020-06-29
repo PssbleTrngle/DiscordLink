@@ -113,9 +113,9 @@ const Commands: { [key: string]: Command } = {
 
                 if (config.descriptions().includes(key)) {
                     if (value) {
-                        if (key in config)
-                            //@ts-ignore
-                            config[key] = value;
+                        //@ts-ignore
+                        config[key] = value;
+                        await config.save();
 
                         return 'Changed config';
                     } else {
@@ -143,9 +143,9 @@ const Commands: { [key: string]: Command } = {
         help: () => 'The linked server ip adress',
         execute: async config => {
             const server = await Server.findOne({ discordId: config.serverId })
-            if(server) {
-                if(server.address) return `This servers IP is ${server.address}`
-                else return 'This servers IP is unknown'                
+            if (server) {
+                if (server.address) return `This servers IP is ${server.address}`
+                else return 'This servers IP is unknown'
             } else return 'There is no minecraft server linked to this discord'
         }
     }
