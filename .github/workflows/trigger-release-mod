@@ -16,4 +16,4 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: release-mod
-          client-payload: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+          client-payload: ${{ toJSON({ labels: github.event.pull_request.labels.*.name }) }}
