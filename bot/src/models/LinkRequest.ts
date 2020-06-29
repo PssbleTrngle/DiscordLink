@@ -1,8 +1,12 @@
-import { Column, Timestamp, BaseEntity } from "typeorm";
+import { Column, Timestamp, BaseEntity, PrimaryGeneratedColumn, Entity } from "typeorm";
 import Timestamps from "./Timestamps";
 import jwt from 'jsonwebtoken';
 
-class LinkRequest extends BaseEntity {
+@Entity()
+export default class LinkRequest extends BaseEntity {
+
+    @PrimaryGeneratedColumn()
+    id!: number;
 
     @Column()
     username!: string;
@@ -29,9 +33,7 @@ class LinkRequest extends BaseEntity {
         return jwt.sign({ uuid, tag }, JWT_SECRET);
     }
 
-    @Column(() => Timestamp)
+    @Column(() => Timestamps)
     timestamps!: Timestamps;
 
 }
-
-export default LinkRequest;

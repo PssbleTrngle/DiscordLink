@@ -1,18 +1,20 @@
-import { Column, Timestamp, BaseEntity } from "typeorm";
+import { Column, Timestamp, BaseEntity, PrimaryGeneratedColumn, Entity } from "typeorm";
 import Timestamps from "./Timestamps";
 import jwt from 'jsonwebtoken';
 
-class LinkRequest extends BaseEntity {
+@Entity()
+export default class LinkRequest extends BaseEntity {
+
+    @PrimaryGeneratedColumn()
+    id!: number;
 
     @Column({ unique: true })
     uuid!: string;
 
     @Column({ unique: true })
-    tag!: string;
+    discordId!: string;
 
-    @Column(() => Timestamp)
+    @Column(() => Timestamps)
     timestamps!: Timestamps;
 
 }
-
-export default LinkRequest;

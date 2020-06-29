@@ -10,6 +10,7 @@ class DiscordBot {
     constructor(private token: string) {
 
         this.client.on('message', msg => {
+            if(msg.author.bot) return;
 
             if (msg.channel.type === 'dm') this.handleDM(msg);
 
@@ -21,6 +22,7 @@ class DiscordBot {
 
         const tag = msg.author.tag;
         const key = msg.content;
+        const discordId = msg.author.id
 
         const request = await LinkRequest.findOne({ tag });
 
@@ -29,8 +31,8 @@ class DiscordBot {
             const valid = request.verify(key);
             if (valid) {
 
-                const { tag, uuid, username } = request;
-                await Link.create({ tag, uuid }).save();
+                const { uuid, username } = request;
+                await Link.create({ discordId, uuid }).save();
                 msg.channel.send(`Your account has been linked with \`${username}\``)
 
             } else msg.channel.send('Invalid key');
@@ -38,6 +40,10 @@ class DiscordBot {
         } else msg.channel.send('There is no link request open for this account')
 
 
+    }
+
+    async fetchDiscordUser(id: string) {
+        return this.client.users.fetch(id, true);
     }
 
     async run() {

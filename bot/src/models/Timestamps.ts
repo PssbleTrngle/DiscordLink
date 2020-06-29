@@ -1,6 +1,6 @@
 import { Column } from "typeorm";
 
-class Timestamps {
+export default class Timestamps {
 
     @Column({ default: 'CURRENT_TIMESTAMP' })
     created!: Date;
@@ -9,5 +9,3 @@ class Timestamps {
     updated!: Date;
 
 }
-
-export default Timestamps;

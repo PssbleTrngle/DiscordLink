@@ -7,5 +7,5 @@ export const info = (...s: unknown[]) => logColor(chalk.cyanBright, [...s]);
 export const success = (...s: unknown[]) => logColor(chalk.greenBright, ['✔', ...s]);
 export const warn = (...s: unknown[]) => logColor(chalk.yellow, ['⚠', ...s]);
 export const debug = (...s: unknown[]) => {
-    if (process.env.DEBUG) logColor(chalk.bgGray.white, s)
+    if (process.env.NODE_ENV === 'development') logColor(chalk.bgGray.white, s)
 }
