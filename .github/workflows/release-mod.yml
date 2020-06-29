@@ -19,14 +19,14 @@ jobs:
         id: version
         
       - name: Find fragment
-        run: echo ${{ toJSON(github.event.client_payload.labels) }}
+        run: echo '${{ toJSON(github.event.client_payload.labels) }}'
         
       - name: Bump release version
         id: bump_version
         uses: christian-draeger/increment-semantic-version@1.0.1
         with:
           current-version: "${{ steps.version.outputs.tag }}"
-          version-fragment: 'feature'
+          version-fragment: feature
           #version-fragment: ${{ contains(github.event.pull_request.labels.*.name, 'bug') || github.payload }}
           #version-fragment: ${{ ['major', 'feature', 'bug'] }} 
         
