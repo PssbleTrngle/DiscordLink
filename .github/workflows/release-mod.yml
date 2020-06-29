@@ -19,7 +19,7 @@ jobs:
         id: version
         
       - name: Find fragment
-        run: echo ${{ fromJSON(github.event.client_payload.labels) }}
+        run: echo ${{ toJSON(github.event.client_payload.labels) }}
         
       - name: Bump release version
         id: bump_version
