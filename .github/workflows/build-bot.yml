@@ -2,9 +2,10 @@ name: Build Discord Bot
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
     paths:
-      - bot
+      - bot/**
   repository_dispatch:
     types: 
       - build-bot
