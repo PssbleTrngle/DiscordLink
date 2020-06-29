@@ -1,4 +1,4 @@
-package com.possible_triangle
+package com.possible_triangle.discordlink
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType
@@ -9,8 +9,6 @@ import net.minecraft.command.arguments.EntityArgumentType
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.LiteralText
-import org.apache.logging.log4j.core.jmx.Server
-import javax.xml.bind.JAXBElement
 
 object DiscordCommand {
 

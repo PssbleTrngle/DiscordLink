@@ -1,4 +1,4 @@
-package com.possible_triangle
+package com.possible_triangle.discordlink
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -15,7 +15,6 @@ import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
-import javax.xml.bind.JAXBElement
 
 object ServerApi {
 
@@ -30,7 +29,10 @@ object ServerApi {
     fun requestLink(player: ServerPlayerEntity, tag: String) {
         val uuid = player.uuid.toString();
         val username = player.name.asString()
-        val json = Json.stringify(LinkRequest.serializer(), LinkRequest(uuid, username, tag))
+        val json = Json.stringify(
+            LinkRequest.serializer(),
+            LinkRequest(uuid, username, tag)
+        )
 
         GlobalScope.launch {
             val key = post("link", json)
@@ -42,19 +44,21 @@ object ServerApi {
 
     fun startServer(server: MinecraftServer) {
 
-        if(SavedData.getKey() != null) {
+        if (SavedData.getKey() != null) {
             notifyStart()
         } else {
             val gametime = server.getWorld(DimensionType.OVERWORLD).time
             val address = server.serverIp
             val json = Json.stringify(ServerData.serializer(), ServerData(address, gametime))
-            val createdKey = post("server/create", json)
-            SavedData.setKey(createdKey)
+            GlobalScope.launch {
+                val createdKey = post("server/create", json)
+                SavedData.setKey(createdKey)
+            }
         }
     }
 
     fun stopServer(server: MinecraftServer) {
-        if(SavedData.getKey() != null) notifyStop()
+        if (SavedData.getKey() != null) notifyStop()
     }
 
     fun notifyStart() {
@@ -76,7 +80,7 @@ object ServerApi {
             requestMethod = "GET"
 
             val key = SavedData.getKey()
-            if(key != null) setRequestProperty("Authorization", "Token $key")
+            if (key != null) setRequestProperty("Authorization", "Token $key")
 
             println("Response Code : $responseCode")
 
@@ -102,9 +106,10 @@ object ServerApi {
             setRequestProperty("Content-Type", "application/json")
 
             val key = SavedData.getKey()
-            if(key != null) setRequestProperty("Authorization", "Token $key")
+            if (key != null) setRequestProperty("Authorization", "Token $key")
 
-            if(body != null) {
+            if (body != null) {
+                doOutput = true
                 val wr = OutputStreamWriter(outputStream);
                 wr.write(body);
                 wr.flush();

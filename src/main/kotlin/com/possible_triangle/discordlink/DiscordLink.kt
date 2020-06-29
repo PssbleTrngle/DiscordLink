@@ -1,4 +1,4 @@
-package com.possible_triangle
+package com.possible_triangle.discordlink
 
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
