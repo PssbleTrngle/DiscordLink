@@ -4,6 +4,7 @@ node_modules/
 build/
 tmp/
 temp/
+!minecraft/
 
 package-lock.json
 
