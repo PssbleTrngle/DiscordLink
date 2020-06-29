@@ -1,4 +1,5 @@
 import AccountController from './controller/AccountController';
+import ServerController from './controller/ServerController';
 
 interface IRoute {
     method: string;
@@ -13,5 +14,35 @@ export const Routes: IRoute[] = [
         controller: AccountController,
         method: 'post',
         route: '/api/link'
+    },
+    {
+        action: 'getMinecraft',
+        controller: AccountController,
+        method: 'get',
+        route: '/api/minecraft/:discordId'
+    },
+    {
+        action: 'getDiscord',
+        controller: AccountController,
+        method: 'get',
+        route: '/api/discord/:uuid'
+    },
+    {
+        action: 'create',
+        controller: ServerController,
+        method: 'post',
+        route: '/api/server/create'
+    },
+    {
+        action: 'start',
+        controller: ServerController,
+        method: 'post',
+        route: '/api/server/start'
+    },
+    {
+        action: 'stop',
+        controller: ServerController,
+        method: 'post',
+        route: '/api/server/stop'
     }
 ];

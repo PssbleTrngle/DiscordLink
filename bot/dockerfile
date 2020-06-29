@@ -1,0 +1,11 @@
+FROM node:latest
+
+WORKDIR /var/www/
+
+COPY ./package.json .
+RUN npm install --no-audit --no-package-lock
+
+COPY ./ ./
+RUN npm run build
+
+CMD cd /var/www/ && npm run run

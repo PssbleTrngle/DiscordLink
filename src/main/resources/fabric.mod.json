@@ -19,12 +19,11 @@
     ]
   },
   "mixins": [
-    "modid.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.7.1",
     "fabric": "*",
     "fabric-language-kotlin": "*",
-    "minecraft": "<1.16-alpha.20.17.a"
+    "minecraft": "1.16.1"
   }
 }
