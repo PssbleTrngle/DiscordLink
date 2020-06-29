@@ -20,6 +20,7 @@ jobs:
         with:
           repository: PssbleTrngle/DiscordLink
           releases-only: false
+          prefix: v
         id: version
         
       - name: Bump release version
@@ -27,7 +28,8 @@ jobs:
         uses: christian-draeger/increment-semantic-version@1.0.1
         with:
           current-version: "${{ steps.version.outputs.tag }}"
-          version-fragment: ${{ 'major }} 
+          version-fragment: 'bug'
+          #version-fragment: ${{ ['major', 'release', 'bug'] }} 
         
       - name: Do something with your bumped release version
         run: echo ${{ steps.bump_version.outputs.next-version }}
