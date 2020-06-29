@@ -36,6 +36,9 @@ dependencies {
     //implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" // or "kotlin-stdlib-jdk8"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0" // JVM dependency
 
+    modApi "me.shedaniel.cloth.api:cloth-api:${project.cloth_api_version}"
+    include "me.shedaniel.cloth.api:cloth-api:${project.cloth_api_version}"
+
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.
 }

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const request = axios.create({
-    baseURL: 'https://api.mojang.com/'
+    baseURL: 'https://api.mojang.com/',
 })
 
 type History = Array<{
@@ -12,8 +12,10 @@ type History = Array<{
 export default {
 
     async getUsername(uuid: string) {
-        const history = await request.get<History>(`user/profiles/${uuid}/names`);
-        return history.data[0];
+        const smallUUID = uuid.split('-').join('');
+        const { data } = await request.get<History>(`user/profiles/${smallUUID}/names`);
+        const last = data[data.length - 1];
+        return last?.name;
     }
 
 }

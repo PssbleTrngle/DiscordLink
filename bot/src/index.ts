@@ -9,6 +9,10 @@ import { debug, error, success } from "./logging";
 import { Routes } from "./routes";
 import DiscordBot from "./discord/Bot";
 
+export function exists<T>(t: T | undefined | null): t is T {
+    return (t ?? null) != null
+}
+
 export type ApiFunc = (req: Request, res: Response, next: NextFunction) => unknown;
 
 export class HttpError extends Error {
@@ -20,7 +24,7 @@ export class HttpError extends Error {
 export const DEBUG = process.env.NODE_ENV === 'development';
 
 const { DISCORD_BOT_TOKEN } = process.env;
-if(!DISCORD_BOT_TOKEN) throw new Error('No bot token defined');
+if (!DISCORD_BOT_TOKEN) throw new Error('No bot token defined');
 
 export const Bot = new DiscordBot(DISCORD_BOT_TOKEN);
 
@@ -45,7 +49,7 @@ createConnection(config as any).then(async connection => {
                             res.status(result).send();
                         } if (result === true) {
                             res.status(200).send();
-                        } else if(typeof result === 'object') {
+                        } else if (typeof result === 'object') {
                             res.json(result);
                         } else {
                             res.send(result);

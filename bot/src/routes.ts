@@ -44,5 +44,23 @@ export const Routes: IRoute[] = [
         controller: ServerController,
         method: 'post',
         route: '/api/server/stop'
-    }
+    },
+    {
+        action: 'joined',
+        controller: ServerController,
+        method: 'post',
+        route: '/api/server/joined'
+    },
+    {
+        action: 'left',
+        controller: ServerController,
+        method: 'post',
+        route: '/api/server/left'
+    },
+    {
+        action: 'link',
+        controller: ServerController,
+        method: 'post',
+        route: '/api/server/link'
+    },
 ];

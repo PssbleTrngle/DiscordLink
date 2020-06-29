@@ -10,6 +10,8 @@ const DEFAULT_PREFIX = process.env.DEFAULT_PREFIX ?? '~'
 @Entity()
 export default class Config extends DescriptiveEntity {
 
+    static ONLY_OWNER: (keyof Config)[] = ['adminRole'];
+
     @PrimaryGeneratedColumn()
     id!: number;
 
@@ -22,10 +24,14 @@ export default class Config extends DescriptiveEntity {
 
     @Column({ nullable: true })
     @Description('A role every user joined the server gets')
-    joinedRole!: string;
+    joinedRole?: string;
 
     @Column({ nullable: true })
     @Description('A role every user that is online on the server gets')
-    onlineRole!: string;
+    onlineRole?: string;
+
+    @Column({ nullable: true })
+    @Description('Users with admin priviliges')
+    adminRole?: string;
 
 }

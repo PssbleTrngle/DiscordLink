@@ -1,11 +1,12 @@
-import { Client, DMChannel, Guild, Message, TextChannel } from 'discord.js';
+import { Client, DMChannel, Guild, Message, TextChannel, User } from 'discord.js';
 import Config from '../models/Config';
 import Link from '../models/Link';
 import LinkRequest from '../models/LinkRequest';
 import Server from '../models/Server';
 import { execute } from './Commands';
 import ServerLinkRequest from '../models/ServerLinkRequest';
-import { HttpError } from '..';
+import { HttpError, Bot, exists } from '..';
+import { debug } from 'console';
 
 class DiscordBot {
 
@@ -19,10 +20,7 @@ class DiscordBot {
         const guild = this.client.guilds.resolve(id);
         if (guild) {
             const owner = this.client.users.resolve(guild.ownerID);
-            owner?.send(
-                `Your discord server **${guild.name}** has been asked to link to the minecraft server ${server.address ?? '*Unkown*'}
-                Enter *accept* or *decline*`
-            );
+            owner?.send(`Your discord server **${guild.name}** has been asked to link to the minecraft server ${server.address ?? '*Unkown*'}\Enter accept\` or \`decline\``);
             return owner?.id;
         } else throw new HttpError(400, 'The bot has not yet been added to this server');
         return null;
@@ -33,6 +31,10 @@ class DiscordBot {
         //const online = Server.count({ running: true });
         const links = await Link.count();
         await this.client.user?.setActivity(`${links} users on ${servers} servers`);
+    }
+
+    getUser() {
+        return this.client.user;
     }
 
     constructor(private token: string) {
@@ -53,10 +55,13 @@ class DiscordBot {
 
         })
 
-        process.on('exit', () => {
+        const events = ['exit', 'SIGINT', 'SIGUSR1', 'SIGUSR2', 'uncaughtException'];
+        events.forEach(e => process.on(e, () => {
+            debug('Going dark');
+            console.log(this.client.user);
             this.client.user?.setActivity('')
             this.client.user?.setStatus('invisible')
-        });
+        }));
 
     }
 
@@ -72,6 +77,10 @@ class DiscordBot {
         const config = await this.getConfig(msg.guild)
 
         execute(msg, config)
+    }
+
+    hasRole(guild: Guild, user: User, role: string) {
+        return guild?.roles.resolve(role)?.members.has(user.id)
     }
 
     async handleDM(msg: Message & { channel: DMChannel }) {
@@ -98,8 +107,8 @@ class DiscordBot {
 
             } else {
                 const server_request = await ServerLinkRequest.findOne({ ownerId: msg.author.id });
-                if(server_request) {
-                    switch(msg.content.toLowerCase().trim()) {
+                if (server_request) {
+                    switch (msg.content.toLowerCase().trim()) {
                         case 'accept': {
                             server_request.server.discordId = server_request.discordId;
                             await server_request.server.save();
@@ -120,6 +129,29 @@ class DiscordBot {
         } else msg.channel.send('There is no link request open for this account')
 
 
+    }
+
+    async joined(userId: string, serverId: string) {
+        const guild = this.client.guilds.resolve(serverId);
+        const user = guild?.members.resolve(userId);
+
+        if (user && guild) {
+            const config = await this.getConfig(guild);
+            [config.joinedRole, config.onlineRole]
+                //.map(role => role ? guild.roles.resolve(role) : null)
+                .filter(exists)
+                .forEach(role => user.roles.add(role))
+        }
+    }
+
+    async left(userId: string, serverId: string) {
+        const guild = this.client.guilds.resolve(serverId);
+        const user = guild?.members.resolve(userId);
+
+        if (user && guild) {
+            const { onlineRole } = await this.getConfig(guild);
+            if (onlineRole) user.roles.remove(onlineRole);
+        }
     }
 
     async fetchDiscordUser(id: string) {
