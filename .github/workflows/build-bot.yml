@@ -23,4 +23,4 @@ jobs:
         name: dockergelb/spoton
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        dockerfile: bot/dockerfile 
+        context : bot 
