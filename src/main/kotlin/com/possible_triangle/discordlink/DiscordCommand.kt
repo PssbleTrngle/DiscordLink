@@ -17,20 +17,36 @@ object DiscordCommand {
         dispatcher.register(
             CommandManager.literal("discord")
                 .then(
-                    CommandManager.literal("link").then(CommandManager.argument("tag", StringArgumentType.greedyString())
-                        .executes(DiscordCommand::link))
+                    CommandManager.literal("link")
+                        .then(
+                            CommandManager.literal("server").requires { s -> s.hasPermissionLevel(1) }.then(
+                                CommandManager.argument("discordId", StringArgumentType.word())
+                                    .executes(DiscordCommand::linkServer)
+                            )
+                        )
+                        .then(
+                            CommandManager.argument("tag", StringArgumentType.greedyString())
+                                .executes(DiscordCommand::link)
+                        )
                 ).then(
-                    CommandManager.literal("get").then(CommandManager.argument("player", EntityArgumentType.player())
-                        .executes(DiscordCommand::fetchDiscord))
+                    CommandManager.literal("get").then(
+                        CommandManager.argument("player", EntityArgumentType.player())
+                            .executes(DiscordCommand::fetchDiscord)
+                    )
                 )
         )
     }
 
     private fun link(ctx: CommandContext<ServerCommandSource>): Int {
-
         val tag = StringArgumentType.getString(ctx, "tag")
         ServerApi.requestLink(ctx.source.player, tag)
+        return 1
+    }
 
+    private fun linkServer(ctx: CommandContext<ServerCommandSource>): Int {
+        val discordId = StringArgumentType.getString(ctx, "discordId")
+        ServerApi.requestServerLink(discordId)
+        ctx.source.sendFeedback(LiteralText("A server link request has been created, check your discord inbox"), false)
         return 1
     }
 
@@ -44,8 +60,14 @@ object DiscordCommand {
                 val copy = Style.EMPTY.withColor(Formatting.GOLD)
                     .setHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, LiteralText("Click to copy tag")))
                     .withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, discord.tag))
-                ctx.source.sendFeedback(LiteralText("").append(player.displayName).append(LiteralText("'s Discord is ").append(LiteralText(discord.tag).setStyle(copy))), false)
-            } else ctx.source.sendFeedback(LiteralText("The player ").append(player.displayName).append(LiteralText(" has not connected a discord account")), false)
+                ctx.source.sendFeedback(
+                    LiteralText("").append(player.displayName)
+                        .append(LiteralText("'s Discord is ").append(LiteralText(discord.tag).setStyle(copy))), false
+                )
+            } else ctx.source.sendFeedback(
+                LiteralText("The player ").append(player.displayName)
+                    .append(LiteralText(" has not connected a discord account")), false
+            )
         }
 
         return 1

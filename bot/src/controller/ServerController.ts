@@ -40,12 +40,18 @@ export default class ServerController {
     async joined(req: Request) {
         const server = await this.sendingServer(req);
         const { uuid } = req.body;
-        const link = Link.findOne({ uuid });
+        const link = await Link.findOne({ uuid });
 
-        if (link && server.discordId) {
+        if (link && server.discordId) Bot.joined(link.discordId, server.discordId);
+        return true;
+    }
 
-        }
+    async left(req: Request) {
+        const server = await this.sendingServer(req);
+        const { uuid } = req.body;
+        const link = await Link.findOne({ uuid });
 
+        if (link && server.discordId) Bot.left(link.discordId, server.discordId);
         return true;
     }
 

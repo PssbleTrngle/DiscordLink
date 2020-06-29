@@ -37,6 +37,12 @@ object ServerApi {
     @Serializable
     data class DiscordUser(val id: String, val avatar: String, val discriminator: String, val username: String, val tag: String)
 
+    fun requestServerLink(discordId: String) {
+        GlobalScope.launch {
+            post("server/link", "{\"discordId\":\"$discordId\"}")
+        }
+    }
+
     fun requestLink(player: ServerPlayerEntity, tag: String) {
         val uuid = player.uuid.toString();
         val username = player.name.asString()
@@ -93,6 +99,18 @@ object ServerApi {
             post("server/stop")
         } catch (e: Exception) {
             System.err.println("Exception occurred trying to notify discord bot about server stop")
+        }
+    }
+
+    fun playerJoined(player: ServerPlayerEntity) {
+        GlobalScope.launch {
+            post("server/joined", "{\"uuid\":\"${player.uuid}\"}")
+        }
+    }
+
+    fun playerLeft(player: ServerPlayerEntity) {
+        GlobalScope.launch {
+            post("server/left", "{\"uuid\":\"${player.uuid}\"}")
         }
     }
 

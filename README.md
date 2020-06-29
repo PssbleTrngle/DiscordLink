@@ -1,4 +1,5 @@
 # Discord Link
+![Build Discord Bot](https://github.com/PssbleTrngle/DiscordLink/workflows/Build%20Discord%20Bot/badge.svg)
 
 This mod communicates with my own Discord Bot and enables players to link their minecraft account with their discord account globally.
 The bot is written in typescript and can be found in the `bot` folder. 
