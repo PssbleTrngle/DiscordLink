@@ -1,1 +1,34 @@
+name: Create mod release
 
+on:
+  pull_request:
+    types: [ closed ]
+    branches: [ master ]
+  repository_dispatch:
+    types: [ release-mod ] 
+
+jobs:
+      
+  publish:
+    if: github.event.pull_request.merged && contains(github.event.pull_request.labels.*.name, 'release')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      
+      - uses: oprypin/find-latest-tag@v1
+        with:
+          repository: PssbleTrngle/DiscordLink
+          releases-only: false
+        id: version
+        
+      - name: Bump release version
+        id: bump_version
+        uses: christian-draeger/increment-semantic-version@1.0.1
+        with:
+          current-version: "${{ steps.version.outputs.tag }}"
+          version-fragment: ${{ 'major }} 
+        
+      - name: Do something with your bumped release version
+        run: echo ${{ steps.bump_version.outputs.next-version }}
+      
