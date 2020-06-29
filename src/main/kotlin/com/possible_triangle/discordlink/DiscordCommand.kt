@@ -8,7 +8,8 @@ import kotlinx.coroutines.launch
 import net.minecraft.command.arguments.EntityArgumentType
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.LiteralText
+import net.minecraft.text.*
+import net.minecraft.util.Formatting
 
 object DiscordCommand {
 
@@ -16,7 +17,7 @@ object DiscordCommand {
         dispatcher.register(
             CommandManager.literal("discord")
                 .then(
-                    CommandManager.literal("link").then(CommandManager.argument("tag", StringArgumentType.word())
+                    CommandManager.literal("link").then(CommandManager.argument("tag", StringArgumentType.greedyString())
                         .executes(DiscordCommand::link))
                 ).then(
                     CommandManager.literal("get").then(CommandManager.argument("player", EntityArgumentType.player())
@@ -38,7 +39,13 @@ object DiscordCommand {
         val player = EntityArgumentType.getPlayer(ctx, "player");
         GlobalScope.launch {
             val discord = ServerApi.requestDiscord(player)
-            ctx.source.sendFeedback(LiteralText(discord), false)
+
+            if (discord != null) {
+                val copy = Style.EMPTY.withColor(Formatting.GOLD)
+                    .setHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, LiteralText("Click to copy tag")))
+                    .withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, discord.tag))
+                ctx.source.sendFeedback(LiteralText("").append(player.displayName).append(LiteralText("'s Discord is ").append(LiteralText(discord.tag).setStyle(copy))), false)
+            } else ctx.source.sendFeedback(LiteralText("The player ").append(player.displayName).append(LiteralText(" has not connected a discord account")), false)
         }
 
         return 1

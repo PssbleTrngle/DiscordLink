@@ -21,8 +21,12 @@ export default class LinkRequest extends BaseEntity {
         const { JWT_SECRET } = process.env;
         if (!JWT_SECRET) throw new Error('No JWT Secret defined, contact admin');
 
-        const { uuid, tag } = jwt.verify(key, JWT_SECRET) as any;
-        return uuid === this.uuid && tag === this.tag;
+        try {
+            const { uuid, tag } = jwt.verify(key, JWT_SECRET) as any;
+            return uuid === this.uuid && tag === this.tag;
+        } catch {
+            return false;
+        }
     }
 
     createKey() {

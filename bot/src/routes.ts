@@ -19,13 +19,13 @@ export const Routes: IRoute[] = [
         action: 'getMinecraft',
         controller: AccountController,
         method: 'get',
-        route: '/api/minecraft/:uuid'
+        route: '/api/minecraft/:discordId'
     },
     {
         action: 'getDiscord',
         controller: AccountController,
         method: 'get',
-        route: '/api/discord/:discordId'
+        route: '/api/discord/:uuid'
     },
     {
         action: 'create',

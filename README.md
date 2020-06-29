@@ -1,16 +1,19 @@
-# Fabric Example Mod - Kotlin
+# Discord Link
 
-## Setup
+This mod communicates with my own Discord Bot and enables players to link their minecraft account with their discord account globally.
+The bot is written in typescript and can be found in the `bot` folder. 
+Communication between the bot and the mod is done using HTTP requests.
 
-0. Create a new mod repository by pressing the "Use this template" button and clone the created repository.
+## Features
 
-1. Import build.gradle file with IntelliJ IDEA
+#### Link Minecraft & Discord accounts
+Player get the ability to use the command `/discord link User#1234`, where the last parameter is their User tag. They receive a generated key they can copy and after sending this key to the Discord Bots private messages, their accounts are successfully linked.
 
-2. Edit build.gradle and mod.json to suit your needs.
-    * The "mixins" object can be removed from mod.json if you do not need to use mixins.
-    * Please replace all occurences of "modid" with your own mod ID - sometimes, a different string may also suffice.
-3. Run!
+This link is avaiable on every minecraft server they join which uses this mod and every discord server that has added the bot
 
-## License
+#### Link Minecraft & Discord servers
+Furthermore, server owners get the ability to link their discord server to their minecraft server, using the command `/discord server link 103954892401`, where the last argument is their discord servers ID. They executing player is required to have their discord and minecraft accounts linked for this.
 
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+If the bot has been added to the discord server, they will receive a direct message from the bot, which they can decline or accept.
+
+By linking their servers, admins get possiblities like granting players specific roles for joining, being online or completing advancements

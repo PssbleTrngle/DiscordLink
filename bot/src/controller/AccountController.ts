@@ -11,6 +11,7 @@ export default class UserController {
     async getLink(req: Request) {
         const { uuid, tag, username } = req.body;
 
+        await LinkRequest.delete({ uuid });
         const request = await LinkRequest.create({ uuid, tag, username }).save();
         return request.createKey();
     }

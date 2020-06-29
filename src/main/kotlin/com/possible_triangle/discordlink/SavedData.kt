@@ -5,6 +5,7 @@ import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.json.JsonException
 import kotlinx.serialization.stringify
 import java.io.*
@@ -13,6 +14,7 @@ import java.util.logging.Logger
 
 object SavedData {
 
+    private val JSON = Json(JsonConfiguration(ignoreUnknownKeys = true, prettyPrint = true))
 
     @Serializable
     data class Saved(var key: String?)
@@ -38,7 +40,7 @@ object SavedData {
         reader.close()
 
         try {
-            DATA = Json.parse(Saved.serializer(), json)
+            DATA = JSON.parse(Saved.serializer(), json)
         } catch (e: JsonException) {
             System.err.println("Error parsing data file at '${FILE.path}'")
             save()
@@ -48,7 +50,7 @@ object SavedData {
     fun save() {
         if (!FILE.exists()) FILE.createNewFile()
         val writer = BufferedWriter(FileWriter(FILE))
-        val json = Json.stringify(Saved.serializer(), DATA)
+        val json = JSON.stringify(Saved.serializer(), DATA)
         writer.write(json)
         writer.close()
     }

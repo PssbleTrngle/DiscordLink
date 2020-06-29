@@ -1,6 +1,8 @@
-import { Column, BaseEntity, PrimaryGeneratedColumn, Entity } from "typeorm";
+import { Column, BaseEntity, PrimaryGeneratedColumn, Entity, OneToOne, OneToMany } from "typeorm";
 import Timestamps from "./Timestamps";
 import jwt from 'jsonwebtoken';
+import Config from "./Config";
+import ServerLinkRequest from "./ServerLinkRequest";
 
 @Entity()
 export default class Server extends BaseEntity {
@@ -19,5 +21,11 @@ export default class Server extends BaseEntity {
 
     @Column({ default: false })
     running!: boolean;
+
+    @Column({ nullable: true })
+    discordId?: string;
+
+    @OneToMany(() => ServerLinkRequest, r => r.server)
+    request!: Promise<ServerLinkRequest[]>;
 
 }

@@ -3,7 +3,7 @@ import Timestamps from "./Timestamps";
 import jwt from 'jsonwebtoken';
 
 @Entity()
-export default class LinkRequest extends BaseEntity {
+export default class Link extends BaseEntity {
 
     @PrimaryGeneratedColumn()
     id!: number;
