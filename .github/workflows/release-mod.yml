@@ -1,16 +1,12 @@
 name: Create mod release
 
 on:
-  pull_request:
-    types: [ closed ]
-    branches: [ master ]
   repository_dispatch:
     types: [ release-mod ] 
 
 jobs:
       
   publish:
-    if: github.event_name == 'repository_dispatch' || (github.event.pull_request.merged && contains(github.event.pull_request.labels.*.name, 'release'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,13 +18,17 @@ jobs:
           releases-only: false
         id: version
         
+      - name: Find fragment
+        run: echo ${{ github.event.client_payload }}
+        
       - name: Bump release version
         id: bump_version
         uses: christian-draeger/increment-semantic-version@1.0.1
         with:
           current-version: "${{ steps.version.outputs.tag }}"
-          version-fragment: 'bug'
-          #version-fragment: ${{ ['major', 'release', 'bug'] }} 
+          version-fragment: 'feature'
+          #version-fragment: ${{ contains(github.event.pull_request.labels.*.name, 'bug') || github.payload }}
+          #version-fragment: ${{ ['major', 'feature', 'bug'] }} 
         
       - name: Do something with your bumped release version
         run: echo ${{ steps.bump_version.outputs.next-version }}
