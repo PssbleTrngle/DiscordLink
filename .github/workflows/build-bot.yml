@@ -24,4 +24,4 @@ jobs:
         password: "${{ secrets.DOCKER_PASSWORD }}"
         image_name: ${{ secrets.DOCKER_USERNAME }}/minecraft-link-bot
         context: bot
-        dockerfile: bot/dockerfile
+        dockerfile: dockerfile
