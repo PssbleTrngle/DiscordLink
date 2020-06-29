@@ -1,1 +1,12 @@
-**/node_modules/
+.idea/
+.vscode/
+node_modules/
+build/
+tmp/
+temp/
+
+package-lock.json
+
+**/.env
+
+**.sqlite
