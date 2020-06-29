@@ -22,7 +22,7 @@ jobs:
         uses: actions/setup-node@v1
         
       - name: Find fragment
-        run: node console.log(`::set-output name=fragment::${'release'}`)
+        run: node -e "console.log(`::set-output name=fragment::${['major','release','bug'].filter(s => ${{ github.event.client_payload.labels }}.includes(s))[0]}`)"
         id: fragment
         
       - run: echo ${{ steps.fragment.outputs.fragment }}
