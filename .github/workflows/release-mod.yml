@@ -22,7 +22,7 @@ jobs:
         uses: actions/setup-node@v1
         
       - name: Find fragment
-        run: console.log(`::set-output name=fragment::${'release'}`)
+        run: node console.log(`::set-output name=fragment::${'release'}`)
         id: fragment
         
       - run: echo ${{ steps.fragment.outputs.fragment }}
