@@ -1,0 +1,20 @@
+name: Create mod release
+
+on:
+  pull_request:
+    types: [ closed ]
+    branches: [ master ]
+    paths-ignore: [ bot ]
+  repository_dispatch:
+    types: [ release-mod ] 
+
+jobs:
+      
+  publish:
+    if: github.event_name != 'pull_request' || (github.event.pull_request.merged && contains(github.event.pull_request.labels.*.name, 'release'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      
+    
