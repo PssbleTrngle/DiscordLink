@@ -24,7 +24,7 @@ jobs:
         then
             echo "::set-output name=tag::$TAG"
         else
-            echo "::set-output name=tag::'latest'"
+            echo "::set-output name=tag::latest"
         fi
       env:
         TAG: ${{ github.event.client_payload.tag }}
