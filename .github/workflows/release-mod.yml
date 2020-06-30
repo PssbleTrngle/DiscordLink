@@ -33,4 +33,4 @@ jobs:
           release_name: Release ${{ steps.version.outputs.next }}  
         
       - name: Build Mod
-        run: chmod +x ./gradlew && ./gradlew build
+        run: chmod +x ./gradlew && ./gradlew build --strack-trace
