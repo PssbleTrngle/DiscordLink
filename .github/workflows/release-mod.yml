@@ -23,7 +23,6 @@ jobs:
         id: version
         
       - name: Create Release
-        if: ${{ false }}
         id: release
         uses: actions/create-release@v1
         env:
@@ -38,8 +37,17 @@ jobs:
           path: 'gradle.properties'
           property: 'mod_version'
           value: ${{ steps.version.outputs.next }} 
-          
-      - run: cat gradle.properties 
         
       - name: Build Mod
         run: chmod +x ./gradlew && ./gradlew build --stacktrace --info
+
+      - name: Upload Release
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: build/libs/discord-link-${{ steps.version.outputs.next }}.jar
+          asset_name: discord-link.jar
+          asset_content_type: application/java-archive
