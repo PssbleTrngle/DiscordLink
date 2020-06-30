@@ -38,6 +38,8 @@ jobs:
           path: 'gradle.properties'
           property: 'mod_version'
           value: ${{ steps.version.outputs.next }} 
+          
+      - run: cat gradle.properties 
         
       - name: Build Mod
-        run: chmod +x ./gradlew && ./gradlew build --stacktrace 
+        run: chmod +x ./gradlew && ./gradlew build --stacktrace --info
