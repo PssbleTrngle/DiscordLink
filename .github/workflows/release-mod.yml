@@ -40,4 +40,4 @@ jobs:
           value: ${{ steps.version.outputs.next }} 
         
       - name: Build Mod
-        run: chmod +x ./gradlew && ./gradlew build --stracktrace
+        run: chmod +x ./gradlew && ./gradlew build --stacktrace 
