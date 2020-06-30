@@ -4,6 +4,7 @@ on:
   pull_request:
     types: [ closed ]
     branches: [ master ]
+    paths-ignore: [ bot ]
   repository_dispatch:
     types: [ release-mod ] 
 
