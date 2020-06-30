@@ -1,5 +1,6 @@
 # Discord Link
-![Build Discord Bot](https://github.com/PssbleTrngle/DiscordLink/workflows/Build%20Discord%20Bot/badge.svg)
+![Mod](https://github.com/PssbleTrngle/DiscordLink/workflows/Create%20mod%20release/badge.svg)
+![Discord Bot](https://github.com/PssbleTrngle/DiscordLink/workflows/Build%20Discord%20Bot/badge.svg)
 
 This mod communicates with my own Discord Bot and enables players to link their minecraft account with their discord account globally.
 The bot is written in typescript and can be found in the `bot` folder. 
@@ -18,3 +19,7 @@ Furthermore, server owners get the ability to link their discord server to their
 If the bot has been added to the discord server, they will receive a direct message from the bot, which they can decline or accept.
 
 By linking their servers, admins get possiblities like granting players specific roles for joining, being online or completing advancements
+
+## CI
+
+![CI Diagram](https://raw.githubusercontent.com/PssbleTrngle/DiscordLink/master/ci.svg)
