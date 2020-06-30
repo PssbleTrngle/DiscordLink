@@ -1,41 +1,27 @@
 name: Create mod release
 
 on:
+  pull_request:
+    types: [ closed ]
+    branches: [ master ]
   repository_dispatch:
     types: [ release-mod ] 
 
 jobs:
       
   publish:
+    if: github.event_name != 'pull_request' || (github.event.pull_request.merged && contains(github.event.pull_request.labels.*.name, 'release'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v1
       
-      - uses: oprypin/find-latest-tag@v1
+      - uses: PossibleTriangle/VersionManagment@v1.0.1
         with:
-          repository: PssbleTrngle/DiscordLink
-          releases-only: false
+          token: ${{secrets.GITHUB_TOKEN}}
+          prefix: v
         id: version
         
-      - name: Setup Node
-        uses: actions/setup-node@v1
-        
-      - name: Find fragment
-        run: node -e "console.log('::set-output name=fragment::' + ['major','release','bug'].filter(s => ${{ toJSON(github.event.client_payload.labels) }}.includes(s))[0])"
-        id: fragment
-        
-      - run: echo ${{ steps.fragment.outputs.fragment }}
-        
-      - name: Bump release version
-        id: bump_version
-        uses: christian-draeger/increment-semantic-version@1.0.1
-        with:
-          current-version: "${{ steps.version.outputs.tag }}"
-          version-fragment: feature
-          #version-fragment: ${{ contains(github.event.pull_request.labels.*.name, 'bug') || github.payload }}
-          #version-fragment: ${{ ['major', 'feature', 'bug'] }} 
-        
-      - name: Do something with your bumped release version
-        run: echo ${{ steps.bump_version.outputs.next-version }}
+      - name: Output next version
+        run: echo ${{ steps.version.outputs.next }}
       
