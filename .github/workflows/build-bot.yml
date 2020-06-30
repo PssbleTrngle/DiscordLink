@@ -20,11 +20,11 @@ jobs:
     - name: Get image tag
       id: tag
       run: |
-        if [$TAG != null]
+        if [ -z "$TAG" ]
         then
-            echo "::set-output name=tag::$TAG"
-        else
             echo "::set-output name=tag::latest"
+        else
+            echo "::set-output name=tag::$TAG"
         fi
       env:
         TAG: ${{ github.event.client_payload.tag }}
