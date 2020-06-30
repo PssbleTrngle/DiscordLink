@@ -1,10 +1,9 @@
 package com.possible_triangle.discordlink
 
 import com.google.gson.JsonSyntaxException
-import javafx.scene.control.TextFormatter
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.serialization.*
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import net.minecraft.server.MinecraftServer
@@ -15,7 +14,6 @@ import net.minecraft.text.LiteralText
 import net.minecraft.text.Style
 import net.minecraft.util.Formatting
 import net.minecraft.world.World
-import net.minecraft.world.dimension.DimensionType
 import java.io.BufferedReader
 import java.io.FileNotFoundException
 import java.io.InputStreamReader
