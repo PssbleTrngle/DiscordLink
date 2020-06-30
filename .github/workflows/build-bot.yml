@@ -17,7 +17,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Build & Publish Container
+    - name: Build & Publish Container with tag
+      if: github.event.client_payload.tag
+      run: echo ${{ github.event.client_payload.tag }}
+    
+    - name: Build & Publish Container as latest
+      if: github.event_name == 'push' || !github.event.client_payload.tag
       uses: whoan/docker-build-with-cache-action@v5
       with:
         username: "${{ secrets.DOCKER_USERNAME }}"
