@@ -16,13 +16,23 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      
+    - name: Get image tag
+      id: tag
+      run: |
+        if [$TAG != null]
+        then
+            echo "::set-output name=tag::$TAG"
+        else
+            echo "::set-output name=tag::'latest'"
+        fi
+      env:
+        TAG: ${{ github.event.client_payload.tag }}
+        
+    - run: echo '${{ steps.tag.outputs.tag }}'
     
-    - name: Build & Publish Container with tag
-      if: github.event.client_payload.tag
-      run: echo ${{ github.event.client_payload.tag }}
-    
-    - name: Build & Publish Container as latest
-      if: github.event_name == 'push' || !github.event.client_payload.tag
+    - name: Build & Publish Container
+      if: ${{ false }}
       uses: whoan/docker-build-with-cache-action@v5
       with:
         username: "${{ secrets.DOCKER_USERNAME }}"
@@ -30,3 +40,4 @@ jobs:
         image_name: ${{ secrets.DOCKER_USERNAME }}/minecraft-link-bot
         context: bot
         dockerfile: dockerfile
+        image-tag: ${{ steps.tag.outputs.tag }} 
