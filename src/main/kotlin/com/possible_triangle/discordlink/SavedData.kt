@@ -1,16 +1,10 @@
 package com.possible_triangle.discordlink
 
-import com.sun.javafx.util.Logging
-import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.json.JsonException
-import kotlinx.serialization.stringify
 import java.io.*
-import java.util.logging.LogManager
-import java.util.logging.Logger
 
 object SavedData {
 
