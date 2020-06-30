@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       
-      - uses: PossibleTriangle/VersionManagment@v1.0.1
+      - uses: actions/version-managment@v1.0.1
         with:
           token: ${{secrets.GITHUB_TOKEN}}
           prefix: v
