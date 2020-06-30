@@ -41,8 +41,7 @@ jobs:
       - name: Build Mod
         run: chmod +x ./gradlew && ./gradlew build --stacktrace --info
 
-      - name: Upload Release
-        id: upload-release-asset 
+      - name: Upload Mod Jar
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -50,4 +49,14 @@ jobs:
           upload_url: ${{ steps.release.outputs.upload_url }}
           asset_path: build/libs/discord-link-${{ steps.version.outputs.next }}.jar
           asset_name: discord-link.jar
+          asset_content_type: application/java-archive
+
+      - name: Upload Source Jar
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: build/libs/discord-link-${{ steps.version.outputs.next }}-sources.jar
+          asset_name: discord-link-sources.jar
           asset_content_type: application/java-archive
