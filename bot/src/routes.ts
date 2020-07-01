@@ -1,5 +1,6 @@
 import AccountController from './controller/AccountController';
 import ServerController from './controller/ServerController';
+import SocketController from './controller/SocketController';
 
 interface IRoute {
     method: string;
@@ -63,4 +64,10 @@ export const Routes: IRoute[] = [
         method: 'post',
         route: '/api/server/link'
     },
+    {
+        action: 'open',
+        controller: SocketController,
+        method: 'ws',
+        route: '/ws/open',
+    }
 ];

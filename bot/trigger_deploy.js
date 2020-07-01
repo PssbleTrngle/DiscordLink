@@ -3,7 +3,7 @@ require('dotenv').config('./.env')
 
 const repo = 'PssbleTrngle/DiscordLink';
 const event_type = process.argv[2]
-const client_payload = { fragment: process.argv[3] };
+const client_payload = { [process.argv[3]]: process.argv[4] };
 
 axios.post(`https://api.github.com/repos/${repo}/dispatches`, { event_type, client_payload }, {
     headers: {

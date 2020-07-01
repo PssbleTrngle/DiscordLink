@@ -34,4 +34,12 @@ export default class Config extends DescriptiveEntity {
     @Description('Users with admin priviliges')
     adminRole?: string;
 
+    @Column({ nullable: true })
+    @Description('Channel where bot information is logged to')
+    debugChannel?: string;
+
+    @Column({ nullable: true })
+    @Description('Channel that is synced with the minecraft server')
+    chatChannel?: string;
+
 }
