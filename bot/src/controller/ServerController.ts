@@ -8,7 +8,7 @@ import ServerLinkRequest from "../models/ServerLinkRequest";
 
 export default class ServerController {
 
-    private async sendingServer(req: Request) {
+    static async sender(req: Request) {
         const key = (req.headers.authorization?.split(' ') ?? [])[1];
         const server = await Server.findOne({ key });
         if (!server) throw new HttpError(403, 'Unauthorized');
@@ -28,7 +28,7 @@ export default class ServerController {
     }
 
     async link(req: Request) {
-        const server = await this.sendingServer(req);
+        const server = await ServerController.sender(req);
         const { discordId } = req.body;
 
         const ownerId = await Bot.sendServerLinkRequest(discordId, server);
@@ -38,7 +38,7 @@ export default class ServerController {
     }
 
     async joined(req: Request) {
-        const server = await this.sendingServer(req);
+        const server = await ServerController.sender(req);
         const { uuid } = req.body;
         const link = await Link.findOne({ uuid });
 
@@ -47,7 +47,7 @@ export default class ServerController {
     }
 
     async left(req: Request) {
-        const server = await this.sendingServer(req);
+        const server = await ServerController.sender(req);
         const { uuid } = req.body;
         const link = await Link.findOne({ uuid });
 
@@ -56,18 +56,18 @@ export default class ServerController {
     }
 
     async start(req: Request) {
-        const server = await this.sendingServer(req);
-        debug(`Server ${server.address} started`);
-        server.running = true;
-        await server.save();
+        //const server = await ServerController.sender(req);
+        //debug(`Server ${server.address} started`);
+        //server.running = true;
+        //await server.save();
         return true;
     }
 
     async stop(req: Request) {
-        const server = await this.sendingServer(req);
-        debug(`Server ${server.address} stopped`);
-        server.running = false;
-        await server.save();
+        //const server = await ServerController.sender(req);
+        //debug(`Server ${server.address} stopped`);
+        //server.running = false;
+        //await server.save();
         return true;
     }
 

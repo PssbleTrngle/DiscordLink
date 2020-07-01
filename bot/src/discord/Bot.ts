@@ -1,4 +1,4 @@
-import { Client, DMChannel, Guild, Message, TextChannel, User } from 'discord.js';
+import { Client, DMChannel, Guild, Message, TextChannel, User, TextBasedChannel, NewsChannel, GuildMember } from 'discord.js';
 import Config from '../models/Config';
 import Link from '../models/Link';
 import LinkRequest from '../models/LinkRequest';
@@ -7,6 +7,28 @@ import { execute } from './Commands';
 import ServerLinkRequest from '../models/ServerLinkRequest';
 import { HttpError, Bot, exists } from '..';
 import { debug } from 'console';
+import { AnyTxtRecord } from 'dns';
+import { success } from '../logging';
+import SocketController from '../controller/SocketController';
+
+const Levels = {
+    info: 0x4CC7E6,
+    success: 0x4CE65B,
+    error: 0xE5433D,
+    debug: 0x4CC7E6,
+    warning: 0xFFCC33,
+}
+
+type Level = keyof typeof Levels;
+export type IEmbed = {
+    message?: string | string[],
+    title?: string,
+    user?: User,
+    level?: Level,
+    fields?: {
+        [key: string]: string
+    }
+}
 
 class DiscordBot {
 
@@ -16,11 +38,55 @@ class DiscordBot {
         return this.client.guilds.cache.has(id) || !!this.client.guilds.resolve(id);
     }
 
+    async log({ debugChannel }: Config, level: Level, title?: string, message?: string) {
+        if (debugChannel) {
+            const channel = this.client.channels.resolve(debugChannel);
+            if (channel instanceof TextChannel) this.sendMessage(channel, { level, title, message });
+        }
+    }
+
+    async logError(error: Error, config: Config) {
+        this.log(config, 'error', error.message, '```typescript\n' + error.stack + '\n```');
+    }
+
+    async sendMessage(channel: DMChannel | TextChannel | NewsChannel, { message, title, user, level, fields }: IEmbed) {
+        const color = Levels[level ?? 'success'];
+        //const t = to ? `<@${to.id}> ${title}` : title
+        const description = Array.isArray(message) ? message.join('\n') : message;
+
+        const author = user && { icon_url: user.avatarURL(), name: user.username };
+
+        channel.send({
+            embed: {
+                title, description, color, author,
+                fields: fields && Object.keys(fields).map((name, i) => ({ name, value: fields[name] }))
+            }
+        })
+    }
+
+    invite() {
+        return this.client.generateInvite(8);
+    }
+
+    emoji(name: string) {
+        return this.client.emojis.resolveIdentifier(name);
+    }
+
     async sendServerLinkRequest(id: string, server: Server) {
         const guild = this.client.guilds.resolve(id);
         if (guild) {
+
             const owner = this.client.users.resolve(guild.ownerID);
-            owner?.send(`Your discord server **${guild.name}** has been asked to link to the minecraft server ${server.address ?? '*Unkown*'}\Enter accept\` or \`decline\``);
+
+            if (owner) this.sendMessage(owner.dmChannel, {
+                level: 'info',
+                title: 'Server link request',
+                message: [
+                    `Your discord server **${guild.name}** has been asked to link to the minecraft server ${server.address ?? '*Unkown*'}`,
+                    'Enter `accept` or `decline`',
+                ]
+            });
+
             return owner?.id;
         } else throw new HttpError(400, 'The bot has not yet been added to this server');
         return null;
@@ -76,7 +142,14 @@ class DiscordBot {
         if (!msg.guild) throw new Error('Message without server information');
         const config = await this.getConfig(msg.guild)
 
-        execute(msg, config)
+        if(!execute.call(this, msg, config)) {
+
+            const server = await Server.findOne({ discordId: msg.guild.id });
+            if(server && config.serverId && config.chatChannel) {
+                SocketController.sendTo(server, msg);
+            }
+
+        }
     }
 
     hasRole(guild: Guild, user: User, role: string) {
@@ -98,7 +171,7 @@ class DiscordBot {
 
                 const { uuid, username } = request;
                 await Link.create({ discordId, uuid }).save();
-                msg.channel.send(`Your account has been linked with \`${username}\``)
+                this.sendMessage(msg.channel, { level: 'success', title: `Your account has been linked with \`${username}\`` });
 
                 LinkRequest.createQueryBuilder()
                     .where('uuid = :uuid', { uuid })
@@ -113,20 +186,20 @@ class DiscordBot {
                             server_request.server.discordId = server_request.discordId;
                             await server_request.server.save();
                             await server_request.remove();
-                            msg.author.send('Your discord server is now linked')
+                            this.sendMessage(msg.channel, { level: 'success', title: 'Your discord server is now linked' });
                             break;
                         }
                         case 'decline': {
 
-                            msg.author.send('Declined request')
+                            this.sendMessage(msg.channel, { level: 'error', title: 'Declined request' });
                             break;
                         }
-                        default: msg.author.send('Invalid option')
+                        default: this.sendMessage(msg.channel, { level: 'warning', title: 'Invalid option' });
                     }
                 }
             }
 
-        } else msg.channel.send('There is no link request open for this account')
+        } else this.sendMessage(msg.channel, { level: 'error', title: 'There is no link request open for this account' })
 
 
     }

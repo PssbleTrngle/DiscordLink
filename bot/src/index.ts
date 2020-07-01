@@ -8,6 +8,7 @@ import config from '../ormconfig';
 import { debug, error, success } from "./logging";
 import { Routes } from "./routes";
 import DiscordBot from "./discord/Bot";
+import WebSocket from "ws";
 
 export function exists<T>(t: T | undefined | null): t is T {
     return (t ?? null) != null
@@ -34,6 +35,7 @@ createConnection(config as any).then(async connection => {
 
     // create express app
     const app = express();
+    require('express-ws')(app);
     app.use(bodyParser.json());
 
     function wrapper(func: ApiFunc): ApiFunc {
@@ -84,10 +86,21 @@ createConnection(config as any).then(async connection => {
 
         const c = new controller();
 
-        (app as any)[method](route, wrapper((req: Request, res: Response, next: Function) => {
-            debug(`[${method.toUpperCase()}] -> '${route}'`);
-            return c[action](req, res, next);
-        }));
+        if (method === 'ws') {
+            (app as any).ws(route, async (ws: WebSocket, req: Request) => {
+                try {
+                    await c[action](ws, req);
+                } catch(e) {
+                    const status_code = e.status_code ?? 500;
+                    ws.close(status_code, e.message);
+                }
+            })
+        } else {
+            (app as any)[method](route, wrapper((req: Request, res: Response, next: Function) => {
+                debug(`[${method.toUpperCase()}] -> '${route}'`);
+                return c[action](req, res, next);
+            }));
+        }
     });
 
 
