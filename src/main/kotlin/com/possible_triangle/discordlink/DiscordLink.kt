@@ -15,11 +15,11 @@ class DiscordLink : DedicatedServerModInitializer {
         SavedData.load()
 
         CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback(DiscordCommand::register))
-        ServerStartCallback.EVENT.register(ServerStartCallback(ServerApi::startServer))
-        ServerStopCallback.EVENT.register(ServerStopCallback(ServerApi::stopServer))
+        ServerStartCallback.EVENT.register(ServerStartCallback{ s -> ServerApi.get(s).startServer() })
+        ServerStopCallback.EVENT.register(ServerStopCallback { s -> ServerApi.get(s).stopServer() })
 
-        PlayerJoinCallback.EVENT.register(PlayerJoinCallback { _, p -> ServerApi.playerJoined(p) })
-        PlayerLeaveCallback.EVENT.register(PlayerLeaveCallback(ServerApi::playerLeft))
+        PlayerJoinCallback.EVENT.register(PlayerJoinCallback { _, p -> ServerApi.get(p.server).playerJoined(p) })
+        PlayerLeaveCallback.EVENT.register(PlayerLeaveCallback { p -> ServerApi.get(p.server).playerLeft(p)})
 
     }
 }

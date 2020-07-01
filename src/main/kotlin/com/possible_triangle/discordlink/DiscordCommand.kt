@@ -33,19 +33,25 @@ object DiscordCommand {
                         CommandManager.argument("player", EntityArgumentType.player())
                             .executes(DiscordCommand::fetchDiscord)
                     )
+                ).then(
+                    CommandManager.literal("reconnect").requires {s -> s.hasPermissionLevel(1)}.executes(DiscordCommand::reconnect)
                 )
         )
     }
 
+    private fun reconnect(ctx: CommandContext<ServerCommandSource>): Int {
+        return if(ServerApi.get(ctx.source.minecraftServer).reconnect()) 1 else 0;
+    }
+
     private fun link(ctx: CommandContext<ServerCommandSource>): Int {
         val tag = StringArgumentType.getString(ctx, "tag")
-        ServerApi.requestLink(ctx.source.player, tag)
+        ServerApi.get(ctx.source.minecraftServer).requestLink(ctx.source.player, tag)
         return 1
     }
 
     private fun linkServer(ctx: CommandContext<ServerCommandSource>): Int {
         val discordId = StringArgumentType.getString(ctx, "discordId")
-        ServerApi.requestServerLink(discordId)
+        ServerApi.get(ctx.source.minecraftServer).requestServerLink(discordId)
         ctx.source.sendFeedback(LiteralText("A server link request has been created, check your discord inbox"), false)
         return 1
     }
@@ -54,7 +60,7 @@ object DiscordCommand {
 
         val player = EntityArgumentType.getPlayer(ctx, "player");
         GlobalScope.launch {
-            val discord = ServerApi.requestDiscord(player)
+            val discord = ServerApi.get(ctx.source.minecraftServer).requestDiscord(player)
 
             if (discord != null) {
                 val copy = Style.EMPTY.withColor(Formatting.GOLD)

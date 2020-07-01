@@ -20,6 +20,11 @@ If the bot has been added to the discord server, they will receive a direct mess
 
 By linking their servers, admins get possiblities like granting players specific roles for joining, being online or completing advancements
 
+## Use
+
+1. [Invite the bot](https://discord.com/oauth2/authorize?client_id=726917963411882075&scope=bot&permissions=8) to your discord server.
+2. Download the mod on your minecraft server
+
 ## CI
 
 ![CI Diagram](https://raw.githubusercontent.com/PssbleTrngle/DiscordLink/master/ci.svg)

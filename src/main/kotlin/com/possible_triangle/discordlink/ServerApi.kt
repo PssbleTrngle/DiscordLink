@@ -6,25 +6,39 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
+import net.minecraft.client.resource.language.I18n
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.ClickEvent
-import net.minecraft.text.HoverEvent
-import net.minecraft.text.LiteralText
-import net.minecraft.text.Style
+import net.minecraft.text.*
 import net.minecraft.util.Formatting
 import net.minecraft.world.World
+import org.java_websocket.WebSocket
+import org.java_websocket.client.WebSocketClient
 import java.io.BufferedReader
 import java.io.FileNotFoundException
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.*
+import java.util.function.Function
 
-object ServerApi {
+class ServerApi(private val server: MinecraftServer) {
 
-    val BASE_URL = "http://localhost:8080/api/"
-    private val JSON = Json(JsonConfiguration(ignoreUnknownKeys = true))
+    companion object {
+
+        private val map = hashMapOf<MinecraftServer,ServerApi>();
+
+        fun get(server: MinecraftServer): ServerApi {
+            return map.computeIfAbsent(server) { s -> ServerApi(s) }
+        }
+
+        val HOST = "localhost:8080"
+        val BASE_URL = "http://$HOST/api/"
+        val JSON = Json(JsonConfiguration(ignoreUnknownKeys = true))
+    }
+
+    val ws = Socket(this.server);
 
     @Serializable
     data class LinkRequest(val uuid: String, val username: String, val tag: String)
@@ -33,7 +47,13 @@ object ServerApi {
     data class ServerData(val address: String, val gametime: Long)
 
     @Serializable
-    data class DiscordUser(val id: String, val avatar: String, val discriminator: String, val username: String, val tag: String)
+    data class DiscordUser(
+        val id: String,
+        val avatar: String,
+        val discriminator: String,
+        val username: String,
+        val tag: String
+    )
 
     fun requestServerLink(discordId: String) {
         GlobalScope.launch {
@@ -65,10 +85,10 @@ object ServerApi {
 
     }
 
-    fun startServer(server: MinecraftServer) {
+    fun startServer() {
 
         if (SavedData.getKey() != null) {
-            notifyStart()
+            openConnection()
         } else {
             val gametime = server.getWorld(World.OVERWORLD)?.time ?: 0L
             val address = server.serverIp
@@ -76,28 +96,35 @@ object ServerApi {
             GlobalScope.launch {
                 val createdKey = post("server/create", json)
                 SavedData.setKey(createdKey)
+                openConnection()
             }
         }
     }
 
-    fun stopServer(server: MinecraftServer) {
-        if (SavedData.getKey() != null) notifyStop()
+    fun stopServer() {
+        ws.close(1000, "Server closed")
     }
 
-    fun notifyStart() {
-        try {
-            post("server/start")
-        } catch (e: Exception) {
-            System.err.println("Exception occurred trying to notify discord bot about server start")
-        }
+    private fun openConnection() {
+        ws.connect()
     }
 
-    fun notifyStop() {
-        try {
-            post("server/stop")
-        } catch (e: Exception) {
-            System.err.println("Exception occurred trying to notify discord bot about server stop")
-        }
+    fun reconnect(): Boolean {
+        if (ws.isOpen) return true;
+        ws.connect()
+        return false;
+    }
+
+    fun getContent(text: Text): String? {
+        if(text is LiteralText) return text.rawString
+        if(text is TranslatableText) return text.string
+        return text.string
+    }
+
+    fun handleMessage(text: Text, uuid: UUID?) {
+        val content = getContent(text)
+        val username = if(uuid != null) server.userCache.getByUuid(uuid)?.name else null
+        if(content != null) ws.send(Socket.Message(username, uuid?.toString(), content))
     }
 
     fun playerJoined(player: ServerPlayerEntity) {
@@ -117,7 +144,7 @@ object ServerApi {
         return try {
             val json = get("discord/$uuid")
             JSON.parse(DiscordUser.serializer(), json)
-        } catch(e: FileNotFoundException) {
+        } catch (e: FileNotFoundException) {
             null
         } catch (e: JsonSyntaxException) {
             null

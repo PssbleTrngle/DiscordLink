@@ -19,6 +19,7 @@
     ]
   },
   "mixins": [
+    "discord-link.mixin.json"
   ],
   "depends": {
     "fabricloader": ">=0.7.1",

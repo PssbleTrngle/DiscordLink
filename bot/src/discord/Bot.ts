@@ -1,4 +1,4 @@
-import { Client, DMChannel, Guild, Message, TextChannel, User, TextBasedChannel, NewsChannel, GuildMember } from 'discord.js';
+import { Client, DMChannel, Guild, Message, TextChannel, User, TextBasedChannel, NewsChannel, GuildMember, Channel } from 'discord.js';
 import Config from '../models/Config';
 import Link from '../models/Link';
 import LinkRequest from '../models/LinkRequest';
@@ -9,7 +9,8 @@ import { HttpError, Bot, exists } from '..';
 import { debug } from 'console';
 import { AnyTxtRecord } from 'dns';
 import { success } from '../logging';
-import SocketController from '../controller/SocketController';
+import SocketController, { IMessage } from '../controller/SocketController';
+import UserCache from '../minecraft/UserCache';
 
 const Levels = {
     info: 0x4CC7E6,
@@ -142,13 +143,29 @@ class DiscordBot {
         if (!msg.guild) throw new Error('Message without server information');
         const config = await this.getConfig(msg.guild)
 
-        if(!execute.call(this, msg, config)) {
+        if (!execute.call(this, msg, config)) {
 
             const server = await Server.findOne({ discordId: msg.guild.id });
-            if(server && config.serverId && config.chatChannel) {
+            if (server && config.serverId && config.chatChannel && config.chatChannel === msg.channel.id) {
                 SocketController.sendTo(server, msg);
             }
 
+        }
+    }
+
+    async chatMessage(message: IMessage, { discordId }: Server) {
+        const { uuid, content } = message;
+        if(discordId && content) {
+            const config = await Config.findOne({ serverId: discordId })
+            if(config?.chatChannel) {
+                const channel = this.client.channels.resolve(config.chatChannel)
+                if(channel instanceof TextChannel) {
+                    const link = await Link.findOne({ uuid })
+                    const username = (link ? this.client.users.resolve(link.discordId)?.username : null) ?? message.username
+                    if(username) channel.send(`**${username}**: ${content}`)
+                    else channel.send(content);
+                }
+            }
         }
     }
 

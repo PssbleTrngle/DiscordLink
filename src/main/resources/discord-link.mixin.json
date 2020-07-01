@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "com.possible_triangle.discordlink.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MinecraftServerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

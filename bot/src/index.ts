@@ -91,8 +91,7 @@ createConnection(config as any).then(async connection => {
                 try {
                     await c[action](ws, req);
                 } catch(e) {
-                    const status_code = e.status_code ?? 500;
-                    ws.close(status_code, e.message);
+                    ws.close(1000, e.message);
                 }
             })
         } else {
