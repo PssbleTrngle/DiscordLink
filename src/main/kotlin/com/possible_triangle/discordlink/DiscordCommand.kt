@@ -17,42 +17,22 @@ object DiscordCommand {
         dispatcher.register(
             CommandManager.literal("discord")
                 .then(
-                    CommandManager.literal("link")
-                        .then(
-                            CommandManager.literal("server").requires { s -> s.hasPermissionLevel(1) }.then(
-                                CommandManager.argument("discordId", StringArgumentType.word())
-                                    .executes(DiscordCommand::linkServer)
-                            )
-                        )
-                        .then(
-                            CommandManager.argument("tag", StringArgumentType.greedyString())
-                                .executes(DiscordCommand::link)
-                        )
+                    CommandManager.literal("link").then(
+                        CommandManager.argument("tag", StringArgumentType.greedyString())
+                            .executes(DiscordCommand::link)
+                    )
                 ).then(
                     CommandManager.literal("get").then(
                         CommandManager.argument("player", EntityArgumentType.player())
                             .executes(DiscordCommand::fetchDiscord)
                     )
-                ).then(
-                    CommandManager.literal("reconnect").requires {s -> s.hasPermissionLevel(1)}.executes(DiscordCommand::reconnect)
                 )
         )
-    }
-
-    private fun reconnect(ctx: CommandContext<ServerCommandSource>): Int {
-        return if(ServerApi.get(ctx.source.minecraftServer).reconnect()) 1 else 0;
     }
 
     private fun link(ctx: CommandContext<ServerCommandSource>): Int {
         val tag = StringArgumentType.getString(ctx, "tag")
         ServerApi.get(ctx.source.minecraftServer).requestLink(ctx.source.player, tag)
-        return 1
-    }
-
-    private fun linkServer(ctx: CommandContext<ServerCommandSource>): Int {
-        val discordId = StringArgumentType.getString(ctx, "discordId")
-        ServerApi.get(ctx.source.minecraftServer).requestServerLink(discordId)
-        ctx.source.sendFeedback(LiteralText("A server link request has been created, check your discord inbox"), false)
         return 1
     }
 

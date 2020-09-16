@@ -12,14 +12,6 @@ import net.fabricmc.fabric.api.event.server.ServerStopCallback
 class DiscordLink : DedicatedServerModInitializer {
 
     override fun onInitializeServer() {
-        SavedData.load()
-
         CommandRegistrationCallback.EVENT.register(CommandRegistrationCallback(DiscordCommand::register))
-        ServerStartCallback.EVENT.register(ServerStartCallback{ s -> ServerApi.get(s).startServer() })
-        ServerStopCallback.EVENT.register(ServerStopCallback { s -> ServerApi.get(s).stopServer() })
-
-        PlayerJoinCallback.EVENT.register(PlayerJoinCallback { _, p -> ServerApi.get(p.server).playerJoined(p) })
-        PlayerLeaveCallback.EVENT.register(PlayerLeaveCallback { p -> ServerApi.get(p.server).playerLeft(p)})
-
     }
 }

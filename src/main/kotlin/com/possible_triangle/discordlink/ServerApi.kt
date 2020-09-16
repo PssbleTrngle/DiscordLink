@@ -38,8 +38,6 @@ class ServerApi(private val server: MinecraftServer) {
         val JSON = Json(JsonConfiguration(ignoreUnknownKeys = true))
     }
 
-    val ws = Socket(this.server);
-
     @Serializable
     data class LinkRequest(val uuid: String, val username: String, val tag: String)
 
@@ -54,12 +52,6 @@ class ServerApi(private val server: MinecraftServer) {
         val username: String,
         val tag: String
     )
-
-    fun requestServerLink(discordId: String) {
-        GlobalScope.launch {
-            post("server/link", "{\"discordId\":\"$discordId\"}")
-        }
-    }
 
     fun requestLink(player: ServerPlayerEntity, tag: String) {
         val uuid = player.uuid.toString();
@@ -85,60 +77,6 @@ class ServerApi(private val server: MinecraftServer) {
 
     }
 
-    fun startServer() {
-
-        if (SavedData.getKey() != null) {
-            openConnection()
-        } else {
-            val gametime = server.getWorld(World.OVERWORLD)?.time ?: 0L
-            val address = server.serverIp
-            val json = JSON.stringify(ServerData.serializer(), ServerData(address, gametime))
-            GlobalScope.launch {
-                val createdKey = post("server/create", json)
-                SavedData.setKey(createdKey)
-                openConnection()
-            }
-        }
-    }
-
-    fun stopServer() {
-        ws.close(1000, "Server closed")
-    }
-
-    private fun openConnection() {
-        ws.connect()
-    }
-
-    fun reconnect(): Boolean {
-        if (ws.isOpen) return true;
-        ws.connect()
-        return false;
-    }
-
-    fun getContent(text: Text): String? {
-        if(text is LiteralText) return text.rawString
-        if(text is TranslatableText) return text.string
-        return text.string
-    }
-
-    fun handleMessage(text: Text, uuid: UUID?) {
-        val content = getContent(text)
-        val username = if(uuid != null) server.userCache.getByUuid(uuid)?.name else null
-        if(content != null) ws.send(Socket.Message(username, uuid?.toString(), content))
-    }
-
-    fun playerJoined(player: ServerPlayerEntity) {
-        GlobalScope.launch {
-            post("server/joined", "{\"uuid\":\"${player.uuid}\"}")
-        }
-    }
-
-    fun playerLeft(player: ServerPlayerEntity) {
-        GlobalScope.launch {
-            post("server/left", "{\"uuid\":\"${player.uuid}\"}")
-        }
-    }
-
     fun requestDiscord(player: ServerPlayerEntity): DiscordUser? {
         val uuid = player.uuid;
         return try {
@@ -155,9 +93,6 @@ class ServerApi(private val server: MinecraftServer) {
         val url = URL(BASE_URL + endpoint)
         with(url.openConnection() as HttpURLConnection) {
             requestMethod = "GET"
-
-            val key = SavedData.getKey()
-            if (key != null) setRequestProperty("Authorization", "Token $key")
 
             println("Response Code : $responseCode")
 
@@ -181,9 +116,6 @@ class ServerApi(private val server: MinecraftServer) {
         with(url.openConnection() as HttpURLConnection) {
             requestMethod = "POST"
             setRequestProperty("Content-Type", "application/json")
-
-            val key = SavedData.getKey()
-            if (key != null) setRequestProperty("Authorization", "Token $key")
 
             if (body != null) {
                 doOutput = true
