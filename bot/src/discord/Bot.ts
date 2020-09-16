@@ -1,16 +1,7 @@
-import { Client, DMChannel, Guild, Message, TextChannel, User, TextBasedChannel, NewsChannel, GuildMember, Channel } from 'discord.js';
-import Config from '../models/Config';
+import { debug } from 'console';
+import { Client, DMChannel, Guild, Message, NewsChannel, TextChannel, User } from 'discord.js';
 import Link from '../models/Link';
 import LinkRequest from '../models/LinkRequest';
-import Server from '../models/Server';
-import { execute } from './Commands';
-import ServerLinkRequest from '../models/ServerLinkRequest';
-import { HttpError, Bot, exists } from '..';
-import { debug } from 'console';
-import { AnyTxtRecord } from 'dns';
-import { success } from '../logging';
-import SocketController, { IMessage } from '../controller/SocketController';
-import UserCache from '../minecraft/UserCache';
 
 const Levels = {
     info: 0x4CC7E6,
@@ -39,17 +30,6 @@ class DiscordBot {
         return this.client.guilds.cache.has(id) || !!this.client.guilds.resolve(id);
     }
 
-    async log({ debugChannel }: Config, level: Level, title?: string, message?: string) {
-        if (debugChannel) {
-            const channel = this.client.channels.resolve(debugChannel);
-            if (channel instanceof TextChannel) this.sendMessage(channel, { level, title, message });
-        }
-    }
-
-    async logError(error: Error, config: Config) {
-        this.log(config, 'error', error.message, '```typescript\n' + error.stack + '\n```');
-    }
-
     async sendMessage(channel: DMChannel | TextChannel | NewsChannel, { message, title, user, level, fields }: IEmbed) {
         const color = Levels[level ?? 'success'];
         //const t = to ? `<@${to.id}> ${title}` : title
@@ -73,31 +53,9 @@ class DiscordBot {
         return this.client.emojis.resolveIdentifier(name);
     }
 
-    async sendServerLinkRequest(id: string, server: Server) {
-        const guild = this.client.guilds.resolve(id);
-        if (guild) {
-
-            const owner = this.client.users.resolve(guild.ownerID);
-
-            if (owner) this.sendMessage(owner.dmChannel, {
-                level: 'info',
-                title: 'Server link request',
-                message: [
-                    `Your discord server **${guild.name}** has been asked to link to the minecraft server ${server.address ?? '*Unkown*'}`,
-                    'Enter `accept` or `decline`',
-                ]
-            });
-
-            return owner?.id;
-        } else throw new HttpError(400, 'The bot has not yet been added to this server');
-        return null;
-    }
-
     async updateActivity() {
-        const servers = await Server.count();
-        //const online = Server.count({ running: true });
         const links = await Link.count();
-        await this.client.user?.setActivity(`${links} users on ${servers} servers`);
+        await this.client.user?.setActivity(`${links} linked users`);
     }
 
     getUser() {
@@ -113,12 +71,7 @@ class DiscordBot {
                 return msg.channel.type === 'dm';
             }
 
-            function isText(msg: Message): msg is Message & { channel: TextChannel } {
-                return msg.channel.type === 'text';
-            }
-
             if (isDM(msg)) this.handleDM(msg);
-            else if (isText(msg)) this.handleServerMessage(msg);
 
         })
 
@@ -130,43 +83,6 @@ class DiscordBot {
             this.client.user?.setStatus('invisible')
         }));
 
-    }
-
-    async getConfig(guild: Guild) {
-        const serverId = guild.id;
-        const existing = await Config.findOne({ serverId });
-        if (existing) return existing;
-        return Config.create({ serverId }).save();
-    }
-
-    async handleServerMessage(msg: Message & { channel: TextChannel }) {
-        if (!msg.guild) throw new Error('Message without server information');
-        const config = await this.getConfig(msg.guild)
-
-        if (!execute.call(this, msg, config)) {
-
-            const server = await Server.findOne({ discordId: msg.guild.id });
-            if (server && config.serverId && config.chatChannel && config.chatChannel === msg.channel.id) {
-                SocketController.sendTo(server, msg);
-            }
-
-        }
-    }
-
-    async chatMessage(message: IMessage, { discordId }: Server) {
-        const { uuid, content } = message;
-        if(discordId && content) {
-            const config = await Config.findOne({ serverId: discordId })
-            if(config?.chatChannel) {
-                const channel = this.client.channels.resolve(config.chatChannel)
-                if(channel instanceof TextChannel) {
-                    const link = await Link.findOne({ uuid })
-                    const username = (link ? this.client.users.resolve(link.discordId)?.username : null) ?? message.username
-                    if(username) channel.send(`**${username}**: ${content}`)
-                    else channel.send(content);
-                }
-            }
-        }
     }
 
     hasRole(guild: Guild, user: User, role: string) {
@@ -195,25 +111,6 @@ class DiscordBot {
                     .orWhere('tag = :tag', { tag })
                     .delete();
 
-            } else {
-                const server_request = await ServerLinkRequest.findOne({ ownerId: msg.author.id });
-                if (server_request) {
-                    switch (msg.content.toLowerCase().trim()) {
-                        case 'accept': {
-                            server_request.server.discordId = server_request.discordId;
-                            await server_request.server.save();
-                            await server_request.remove();
-                            this.sendMessage(msg.channel, { level: 'success', title: 'Your discord server is now linked' });
-                            break;
-                        }
-                        case 'decline': {
-
-                            this.sendMessage(msg.channel, { level: 'error', title: 'Declined request' });
-                            break;
-                        }
-                        default: this.sendMessage(msg.channel, { level: 'warning', title: 'Invalid option' });
-                    }
-                }
             }
 
         } else this.sendMessage(msg.channel, { level: 'error', title: 'There is no link request open for this account' })
@@ -224,24 +121,11 @@ class DiscordBot {
     async joined(userId: string, serverId: string) {
         const guild = this.client.guilds.resolve(serverId);
         const user = guild?.members.resolve(userId);
-
-        if (user && guild) {
-            const config = await this.getConfig(guild);
-            [config.joinedRole, config.onlineRole]
-                //.map(role => role ? guild.roles.resolve(role) : null)
-                .filter(exists)
-                .forEach(role => user.roles.add(role))
-        }
     }
 
     async left(userId: string, serverId: string) {
         const guild = this.client.guilds.resolve(serverId);
         const user = guild?.members.resolve(userId);
-
-        if (user && guild) {
-            const { onlineRole } = await this.getConfig(guild);
-            if (onlineRole) user.roles.remove(onlineRole);
-        }
     }
 
     async fetchDiscordUser(id: string) {

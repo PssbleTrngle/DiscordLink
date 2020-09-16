@@ -1,6 +1,4 @@
 import AccountController from './controller/AccountController';
-import ServerController from './controller/ServerController';
-import SocketController from './controller/SocketController';
 
 interface IRoute {
     method: string;
@@ -28,46 +26,4 @@ export const Routes: IRoute[] = [
         method: 'get',
         route: '/api/discord/:uuid'
     },
-    {
-        action: 'create',
-        controller: ServerController,
-        method: 'post',
-        route: '/api/server/create'
-    },
-    {
-        action: 'start',
-        controller: ServerController,
-        method: 'post',
-        route: '/api/server/start'
-    },
-    {
-        action: 'stop',
-        controller: ServerController,
-        method: 'post',
-        route: '/api/server/stop'
-    },
-    {
-        action: 'joined',
-        controller: ServerController,
-        method: 'post',
-        route: '/api/server/joined'
-    },
-    {
-        action: 'left',
-        controller: ServerController,
-        method: 'post',
-        route: '/api/server/left'
-    },
-    {
-        action: 'link',
-        controller: ServerController,
-        method: 'post',
-        route: '/api/server/link'
-    },
-    {
-        action: 'open',
-        controller: SocketController,
-        method: 'ws',
-        route: '/ws/open',
-    }
 ];
