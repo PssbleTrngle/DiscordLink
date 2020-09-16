@@ -1,0 +1,19 @@
+name: Create mod release
+
+on:
+  release:
+    types: [ created ]
+
+jobs:
+  bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+        
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          event-type: build-bot
+          client-payload: '{"tag":"${{ github.event.release.tag_name }}"}'

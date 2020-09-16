@@ -2,9 +2,10 @@ name: Build Discord Bot
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
     paths:
-      - bot
+      - bot/**
   repository_dispatch:
     types: 
       - build-bot
@@ -15,11 +16,25 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
+      
+    - name: Get image tag
+      id: tag
+      run: |
+        if [ -z "$TAG" ]
+        then
+            echo "::set-output name=tag::latest"
+        else
+            echo "::set-output name=tag::$TAG"
+        fi
+      env:
+        TAG: ${{ github.event.client_payload.tag }}
+    
+    - name: Build & Publish Container
+      uses: whoan/docker-build-with-cache-action@v5
       with:
-        name: dockergelb/spoton
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        dockerfile: bot/dockerfile 
+        username: "${{ secrets.DOCKER_USERNAME }}"
+        password: "${{ secrets.DOCKER_PASSWORD }}"
+        image_name: ${{ secrets.DOCKER_USERNAME }}/minecraft-link-bot
+        context: bot
+        dockerfile: dockerfile
+        image-tag: ${{ steps.tag.outputs.tag }} 
